@@ -28,7 +28,13 @@ Aplikasi mobile Flutter untuk portofolio pribadi **Razan Muhammad Fathin Lesmana
 ```
 lib/
 ├── main.dart   # Bootstrap aplikasi: MyApp (MaterialApp + tema)
-└── menu.dart   # Halaman utama: MyHomePage, InfoCard, ItemHomepage, ItemCard
+├── screens/
+│   ├── menu.dart            # Halaman utama dan daftar kartu aksi
+│   ├── project_form.dart    # Formulir proyek
+│   └── education_form.dart  # Formulir edukasi
+└── widgets/
+    ├── left_drawer.dart     # Menu navigasi bersama
+    └── project_card.dart    # Kartu aksi halaman utama
 ```
 
 ## Progres Mingguan
@@ -37,6 +43,7 @@ lib/
 |---|---|---|
 | 8 | Tutorial 08 | Setup Flutter, pisah `menu.dart` dari `main.dart`, `MyHomePage` jadi `StatelessWidget`, `InfoCard` & `ItemCard` |
 | 8 | Tugas 7 | Data profil sendiri di `InfoCard`, 3 tombol aksi dengan warna berbeda lewat atribut `color` di `ItemHomepage`, SnackBar per tombol, `flutter analyze` bersih |
+| 9 | Tugas 8 | Form Tambah Edukasi, validasi isian, dialog ringkasan, dan navigasi melalui kartu maupun drawer |
 
 ---
 
@@ -96,18 +103,53 @@ lib/
 
 ---
 
+### Tugas 8
+
+1. **Navigasi halaman**
+
+   - `push()` membuka halaman baru di atas halaman sekarang. Kartu **Tambah Edukasi** pakai cara ini supaya Home tetap ada di bawah form.
+   - `pop()` menutup tampilan paling atas. Saat kita tekan **Back** dari form tadi, kita kembali ke Home.
+   - `pushReplacement()` mengganti halaman yang sedang dibuka. Opsi **Add Education** di drawer pakai cara ini untuk membuka form.
+   - Saat kita pilih **Home** di drawer, `pop()` menutup drawer dulu. Setelah itu, `pushReplacement()` mengganti form dengan `MyHomePage`.
+
+2. **Struktur dan warna halaman**
+
+   - `Scaffold` mengatur letak judul, isi halaman, dan menu samping.
+   - `AppBar` menampilkan judul di bagian atas tiap halaman.
+   - Home dan kedua form pakai `LeftDrawer` yang sama, jadi pilihan menunya konsisten.
+   - Kartu **Tambah Edukasi** di Home dan `AppBar` di form edukasi sama-sama pakai `Colors.indigo`.
+
+3. **Layout form di layar kecil**
+
+   - Input disusun satu kolom supaya label dan isian mudah dibaca di ponsel.
+   - Kalau kita pilih **Perguruan Tinggi**, kolom program studi muncul di bawah jenjang.
+   - `SizedBox(height: 16)` memberi jarak antarkolom. Padding memberi jarak dari tepi layar.
+   - `ListView` membuat form bisa digulir sampai tombol **Simpan**, termasuk saat keyboard terbuka.
+
+4. **Validasi saat menekan Simpan**
+
+   1. Tombol **Simpan** mengakses form lewat `GlobalKey<FormState>`, lalu memanggil `validate()`.
+   2. Tiap `validator` mengecek isi kolomnya. Misalnya, nama institusi yang cuma berisi spasi jadi kosong setelah `trim()`, jadi muncul pesan di kolom itu.
+   3. Tahun masuk boleh kosong. Kalau diisi, tahunnya harus empat digit dan diawali angka 1 sampai 9. Keyboard angka masih bisa dipakai untuk mengetik `25`, jadi formatnya tetap perlu dicek.
+   4. Kalau semua isian valid, `save()` mengambil nilainya lewat `onSaved`. Lalu `showDialog()` menampilkan ringkasan di `AlertDialog`.
+   5. Tombol **OK** menutup dialog dan kita kembali ke form.
+
+---
+
 ## AI Disclosure
 
 **Tools:** Claude (Anthropic).
 
-**Strategi prompting:** Saya mengunggah file PDF soal Tugas 7 dan zip proyek hasil Tutorial 08, lalu meminta Claude menjelaskan isi tugas dan menunjukkan perubahan apa saja yang perlu dilakukan per file dan per tahap, dengan penjelasan konsepnya dulu sebelum kode.
+**Strategi prompting:** Saya mengunggah file PDF soal Tugas 8 dan zip proyek hasil Tutorial 09, lalu meminta Claude menjelaskan isi tugas dan menunjukkan perubahan apa saja yang perlu dilakukan per file dan per tahap, dengan penjelasan konsepnya dulu sebelum kode.
 
 **Bagian yang dibantu AI:**
-- Identifikasi bagian checklist yang belum terpenuhi dari hasil Tutorial 08 (warna tombol belum berbeda, nama belum lengkap).
-- Perubahan `lib/menu.dart`: menambah atribut `color` di `ItemHomepage` dan memakai `item.color` di `ItemCard`.
-- Draf struktur README dan draf jawaban pertanyaan reflektif, yang kemudian saya baca, pahami, dan sesuaikan.
+- Membaca checklist Tugas 8 dan menentukan bagian yang perlu ditambahkan ke proyek hasil Tutorial 09.
+- Membantu membuat form edukasi di `lib/screens/education_form.dart` berdasarkan field yang saya pilih, termasuk validasi input dan dialog ringkasan saat tombol Simpan ditekan.
+- Membantu menghubungkan form ke kartu Tambah Edukasi di Home dan opsi Add Education di drawer, lalu menguji kedua jalur navigasi dengan widget test.
+- Menyusun draf jawaban untuk empat pertanyaan reflektif di README sesuai implementasi aplikasi yang kemudian saya pelajari dan koreksi/sesuaikan.
 
 **Keterbatasan AI dan perbaikan manual:**
 - AI tidak bisa menjalankan `flutter analyze` maupun aplikasi di lingkungannya, jadi saya menjalankan dan memverifikasi sendiri di laptop.
 
-**Log chat AI:** https://claude.ai/chat/2a509a34-17b7-460d-bde2-f84e8d8fb8c3
+**Log chat AI:** 
+https://claude.ai/chat/7ce375eb-ddef-4996-8309-c07ec88a4af3
