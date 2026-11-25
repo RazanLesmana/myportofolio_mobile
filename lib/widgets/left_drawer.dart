@@ -1,3 +1,8 @@
+import '../widgets/auth_guard.dart';
+import '../services/auth_state.dart';
+import '../screens/project_list_screen.dart';
+
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:myportofolio_mobile/screens/education_form.dart';
 import 'package:myportofolio_mobile/screens/menu.dart';
@@ -8,6 +13,7 @@ class LeftDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loggedIn = context.watch<AuthState>().isLoggedIn;
     return Drawer(
       child: ListView(
         children: [
@@ -50,14 +56,39 @@ class LeftDrawer extends StatelessWidget {
             leading: const Icon(Icons.add_circle_outline),
             title: const Text('Add Project'),
             // Navigasi ke halaman tambah proyek
+            onTap: () async {
+              final navigator = Navigator.of(context);
+              final pageContext = navigator.context;
+              navigator.pop();
+              if (await ensureLoggedIn(pageContext) && navigator.mounted) {
+                navigator.pushReplacement(
+                  MaterialPageRoute(builder: (_) => const ProjectFormPage()),
+                );
+              }
+            },
+          ),
+          ListTile(
+            title: const Text('Lihat Proyek'),
+            leading: const Icon(Icons.folder),
             onTap: () {
-              Navigator.pop(context);
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ProjectFormPage(),
-                ),
+              final navigator = Navigator.of(context);
+              navigator.pop();
+              navigator.push(
+                MaterialPageRoute(builder: (_) => const ProjectListScreen()),
               );
+            },
+          ),
+          ListTile(
+            title: Text(loggedIn ? 'Logout' : 'Login'),
+            leading: Icon(loggedIn ? Icons.logout : Icons.login),
+            onTap: () async {
+              final navigator = Navigator.of(context);
+              navigator.pop();
+              if (loggedIn) {
+                await logoutWithFeedback(navigator.context);
+              } else {
+                await ensureLoggedIn(navigator.context);
+              }
             },
           ),
           ListTile(
